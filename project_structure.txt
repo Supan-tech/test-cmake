@@ -1,0 +1,115 @@
+GameEngine/
+├── CMakeLists.txt
+├── engine/
+│   ├── CMakeLists.txt
+│   ├── src/
+│   │   ├── Engine.cpp
+│   │   ├── Renderer.cpp
+│   │   ├── Physics.cpp
+│   │   └── Audio.cpp
+│   ├── include/
+│   │   ├── Engine.h
+│   │   ├── Renderer.h
+│   │   ├── Physics.h
+│   │   └── Audio.h
+├── game/
+│   ├── CMakeLists.txt
+│   ├── src/
+│   │   ├── main.cpp
+│   │   ├── GameLogic.cpp
+│   │   ├── Player.cpp
+│   │   └── Enemy.cpp
+│   ├── include/
+│   │   ├── GameLogic.h
+│   │   ├── Player.h
+│   │   └── Enemy.h
+├── assets/
+│   ├── images/
+│   │   ├── logo.png
+│   │   └── background.jpg
+│   ├── configs/
+│   │   └── game_config.json
+│   └── shaders/
+│       ├── vertex_shader.glsl
+│       └── fragment_shader.glsl
+├── lib/
+│   ├── glfw/
+│   │   ├── CMakeLists.txt
+│   │   ├── include/
+│   │   └── src/
+│   ├── other_external_library/
+│   │   ├── CMakeLists.txt
+│   │   ├── include/
+│   │   └── src/
+├── tests/
+│   ├── CMakeLists.txt
+│   ├── test_main.cpp
+│   └── test_Engine.cpp
+├── build/
+├── docs/
+│   ├── index.md
+│   └── usage.md
+└── README.md
+
+Root Cmake:
+cmake_minimum_required(VERSION 3.10)
+project(GameEngine VERSION 1.0)
+
+# Specify the C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Add subdirectories
+add_subdirectory(engine)
+add_subdirectory(game)
+add_subdirectory(tests)
+add_subdirectory(lib/glfw)
+
+# Optionally, add other external libraries
+# add_subdirectory(lib/other_external_library)
+
+cmake_minimum_required(VERSION 3.10)
+project(GLFW)
+
+# Set GLFW build options here
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(src)
+include_directories(include)
+
+Engine Cmake:
+cmake_minimum_required(VERSION 3.10)
+project(Engine)
+
+# Add the source and header files for the engine
+include_directories(include)
+
+# Add GLFW include directories
+include_directories(${GLFW_SOURCE_DIR}/include)
+
+add_library(Engine STATIC src/Engine.cpp src/Renderer.cpp src/Physics.cpp src/Audio.cpp)
+
+# Link GLFW
+target_link_libraries(Engine glfw)
+
+
+Game Cmake
+cmake_minimum_required(VERSION 3.10)
+project(Game)
+
+# Add the source and header files for the game
+include_directories(include)
+
+add_executable(Game src/main.cpp src/GameLogic.cpp src/Player.cpp src/Enemy.cpp)
+
+# Link the engine library and GLFW
+target_link_libraries(Game Engine glfw)
+
+# Copy assets to the build directory
+add_custom_command(TARGET Game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:Game>/assets)
+
+
